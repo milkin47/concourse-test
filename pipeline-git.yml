@@ -1,0 +1,28 @@
+resources:
+- name: source-repo
+  source:
+    branch: main
+    uri: https://github.com/milkin47/concourse-test.git
+  type: git  
+
+jobs:
+- name: sample-dep-job
+  plan:
+  - get: source-repo
+    trigger: true
+  - task: run-my-ci-tests
+    config:  
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: python
+          tag: 3.6-alpine   
+      inputs:
+      - name: source-repo
+      outputs:
+      - name: test-output    
+      run:
+        path: python
+        args:
+          - source-repo/sample-program.py
