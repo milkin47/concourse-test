@@ -1,0 +1,37 @@
+resources:
+- name: interval
+  check_every: 3m
+  source:
+    location: America/New_York
+    start: "16:10"
+    stop: "18:00"
+  type: time  
+- name: source-repo
+  source:
+    branch: main
+    uri: https://github.com/milkin47/concourse-test.git
+  type: git  
+
+jobs:
+- name: sample-dep-job
+  plan:
+  - get: interval
+    trigger: true
+  - get: source-repo
+    trigger: true
+  - task: run-my-ci-tests
+    config:  
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: python
+          tag: 3.6-alpine   
+      inputs:
+      - name: source-repo
+      outputs:
+      - name: test-output    
+      run:
+        path: python
+        args:
+          - source-repo/sample-program.py
